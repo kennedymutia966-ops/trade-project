@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Welcome, {{ session.username }}</h2>
+    <div class="stats">
+        {% for label, count in stats %}
+        <div class="stat">
+            <div class="num">{{ count }}</div>
+            <div class="lbl">{{ label }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

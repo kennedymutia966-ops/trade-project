@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Students{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Register a Student</h2>
+    <form method="POST" action="{{ url_for('students') }}">
+        <div class="grid">
+            <label>Admission No *
+                <input type="text" name="admission_no" required>
+            </label>
+            <label>First Name *
+                <input type="text" name="first_name" required>
+            </label>
+            <label>Last Name *
+                <input type="text" name="last_name" required>
+            </label>
+            <label>Gender *
+                <select name="gender" required>
+                    <option value="">-- Select --</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                </select>
+            </label>
+            <label>Date of Birth
+                <input type="date" name="date_of_birth">
+            </label>
+            <label>Phone
+                <input type="tel" name="phone">
+            </label>
+            <label>Email
+                <input type="email" name="email">
+            </label>
+            <label>Course *
+                <select name="course_id" required>
+                    <option value="">-- Select --</option>
+                    {% for c in courses %}
+                        <option value="{{ c.course_id }}">{{ c.course_name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Date Enrolled *
+                <input type="date" name="date_enrolled" required>
+            </label>
+        </div>
+        <button type="submit">Save Student</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Students ({{ students|length }})</h2>
+    <form method="GET" class="search">
+        <input type="text" name="q" value="{{ search }}" placeholder="Search by name or admission no">
+        <button type="submit">Search</button>
+        {% if search %}<a href="{{ url_for('students') }}">Clear</a>{% endif %}
+    </form>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Adm No</th><th>Name</th><th>Gender</th><th>Course</th><th>Phone</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td>{{ s.admission_no }}</td>
+                    <td>{{ s.first_name }} {{ s.last_name }}</td>
+                    <td>{{ s.gender }}</td>
+                    <td>{{ s.course_name }}</td>
+                    <td>{{ s.phone or '-' }}</td>
+                    <td>{{ s.status }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('delete_student', student_id=s.student_id) }}"
+                              onsubmit="return confirm('Delete this student and their records?');">
+                            <button type="submit" class="danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="empty">No students found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

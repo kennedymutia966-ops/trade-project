@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Attendance{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Roll Call</h2>
+    <form method="GET" class="search">
+        <select name="unit_id" required>
+            <option value="">-- Select unit --</option>
+            {% for u in units %}
+            <option value="{{ u.unit_id }}" {{ 'selected' if u.unit_id == unit_id }}>{{ u.unit_code }} - {{ u.unit_name }}</option>
+            {% endfor %}
+        </select>
+        <input type="date" name="attendance_date" value="{{ day }}" class="short">
+        <button type="submit">Load class</button>
+    </form>
+    {% if not units %}
+    <p class="hint">No units are allocated to you yet.</p>
+    {% endif %}
+</section>
+
+{% if unit_id %}
+<section class="card">
+    <h2>{{ rows|length }} student(s) on {{ day }}</h2>
+    {% if rows %}
+    <form method="POST">
+        <input type="hidden" name="unit_id" value="{{ unit_id }}">
+        <input type="hidden" name="attendance_date" value="{{ day }}">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Adm No</th><th>Student</th><th>Status</th><th>Attendance so far</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in rows %}
+                    <tr>
+                        <td>{{ r.admission_no }}</td>
+                        <td>{{ r.student_name }}</td>
+                        <td>
+                            {% for st in states %}
+                            <label class="radio"><input type="radio" name="status_{{ r.student_id }}" value="{{ st }}"
+                                {% if (r.status or 'Present') == st %}checked{% endif %}> {{ st }}</label>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if r.total_days %}
+                                {{ r.attended }} of {{ r.total_days }} ({{ ((r.attended / r.total_days) * 100)|round|int }}%)
+                            {% else %}-{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button type="submit">Save Attendance</button>
+    </form>
+    {% else %}
+    <p class="empty">Nobody is enrolled in this unit yet. Ask the registrar to enroll the students first.</p>
+    {% endif %}
+</section>
+{% endif %}
+{% endblock %}

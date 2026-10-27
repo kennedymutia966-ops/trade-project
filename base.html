@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}SIMS{% endblock %} | Student Information Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="bar">
+            <h1>Student Information Management System</h1>
+            {% if session.user_id %}
+            <div class="user">{{ session.username }} ({{ session.role }}) &nbsp;|&nbsp;
+                <a href="{{ url_for('logout') }}">Log out</a>
+            </div>
+            {% endif %}
+        </div>
+        {% if session.user_id %}
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' }}">Dashboard</a>
+            {% if session.role in ('Admin', 'Registrar') %}
+            <a href="{{ url_for('students') }}" class="{{ 'active' if request.endpoint == 'students' }}">Students</a>
+            <a href="{{ url_for('enrollments') }}" class="{{ 'active' if request.endpoint == 'enrollments' }}">Enrollment</a>
+            {% endif %}
+            {% if session.role in ('Admin', 'Lecturer') %}
+            <a href="{{ url_for('grades') }}" class="{{ 'active' if request.endpoint == 'grades' }}">Grades</a>
+            <a href="{{ url_for('attendance') }}" class="{{ 'active' if request.endpoint == 'attendance' }}">Attendance</a>
+            {% endif %}
+            <a href="{{ url_for('transcript') }}" class="{{ 'active' if request.endpoint == 'transcript' }}">Transcript</a>
+        </nav>
+        {% endif %}
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

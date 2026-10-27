@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Transcript{% endblock %}
+{% block content %}
+<section class="card no-print">
+    <h2>Student Transcript</h2>
+    <form method="GET" class="search">
+        <select name="student_id" required>
+            <option value="">-- Select student --</option>
+            {% for s in student_list %}
+            <option value="{{ s.student_id }}" {{ 'selected' if s.student_id == student_id }}>{{ s.name }} ({{ s.admission_no }})</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Show</button>
+        {% if student %}<button type="button" onclick="window.print()">Print</button>{% endif %}
+    </form>
+</section>
+
+{% if student %}
+<section class="card">
+    <h2>Academic Transcript</h2>
+    <p><strong>Name:</strong> {{ student.student_name }}<br>
+       <strong>Admission No:</strong> {{ student.admission_no }}<br>
+       <strong>Course:</strong> {{ student.course_name }}<br>
+       <strong>Printed:</strong> {{ today }}</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Year</th><th>Sem</th><th>Code</th><th>Unit</th><th>CAT</th><th>Exam</th><th>Total</th><th>Grade</th></tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                <tr>
+                    <td>{{ r.academic_year }}</td>
+                    <td>{{ r.semester }}</td>
+                    <td>{{ r.unit_code }}</td>
+                    <td>{{ r.unit_name }}</td>
+                    <td>{{ r.cat_marks if r.cat_marks is not none else '-' }}</td>
+                    <td>{{ r.exam_marks if r.exam_marks is not none else '-' }}</td>
+                    <td>{{ r.total_marks if r.total_marks is not none else '-' }}</td>
+                    <td>{% if r.grade_letter %}<span class="badge {{ r.grade_letter|lower }}">{{ r.grade_letter }}</span>{% else %}-{% endif %}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8" class="empty">This student has no enrolled units yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if summary %}
+    <p class="summary"><strong>Units graded:</strong> {{ summary.units }} &nbsp;|&nbsp;
+        <strong>Units passed:</strong> {{ summary.passed }} &nbsp;|&nbsp;
+        <strong>Average:</strong> {{ summary.average }} ({{ summary.grade }})</p>
+    {% endif %}
+</section>
+{% endif %}
+{% endblock %}

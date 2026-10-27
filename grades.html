@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Grades{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Enter Grades</h2>
+    <form method="GET" class="search">
+        <select name="unit_id" required>
+            <option value="">-- Select unit --</option>
+            {% for u in units %}
+            <option value="{{ u.unit_id }}" {{ 'selected' if u.unit_id == unit_id }}>{{ u.unit_code }} - {{ u.unit_name }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="academic_year" value="{{ year }}" placeholder="2026/2027" class="short">
+        <button type="submit">Load students</button>
+    </form>
+    {% if not units %}
+    <p class="hint">No units are allocated to you yet.</p>
+    {% endif %}
+</section>
+
+{% if unit_id %}
+<section class="card">
+    <h2>{{ rows|length }} student(s) enrolled for {{ year }}</h2>
+    {% if rows %}
+    <form method="POST">
+        <input type="hidden" name="unit_id" value="{{ unit_id }}">
+        <input type="hidden" name="academic_year" value="{{ year }}">
+        <p class="hint">CAT is out of 30 and the exam out of 70. The total and grade are worked out automatically after saving.</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Adm No</th><th>Student</th><th>CAT (30)</th><th>Exam (70)</th><th>Total</th><th>Grade</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in rows %}
+                    <tr>
+                        <td>{{ r.admission_no }}</td>
+                        <td>{{ r.student_name }}</td>
+                        <td><input type="number" class="mark" name="cat_{{ r.enrollment_id }}" min="0" max="30" step="0.01"
+                                   value="{{ r.cat_marks if r.cat_marks is not none else '' }}"></td>
+                        <td><input type="number" class="mark" name="exam_{{ r.enrollment_id }}" min="0" max="70" step="0.01"
+                                   value="{{ r.exam_marks if r.exam_marks is not none else '' }}"></td>
+                        <td>{{ r.total_marks if r.total_marks is not none else '-' }}</td>
+                        <td>{% if r.grade_letter %}<span class="badge {{ r.grade_letter|lower }}">{{ r.grade_letter }}</span>{% else %}-{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button type="submit">Save Marks</button>
+    </form>
+    {% else %}
+    <p class="empty">Nobody is enrolled in this unit for {{ year }} yet. Ask the registrar to enroll the students first.</p>
+    {% endif %}
+</section>
+{% endif %}
+{% endblock %}

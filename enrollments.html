@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Enrollment{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Enroll one student in a unit</h2>
+    <form method="POST">
+        <input type="hidden" name="action" value="single">
+        <div class="grid">
+            <label>Student *
+                <select name="student_id" required>
+                    <option value="">-- Select --</option>
+                    {% for s in students %}
+                    <option value="{{ s.student_id }}">{{ s.name }} ({{ s.admission_no }})</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Unit *
+                <select name="unit_id" required>
+                    <option value="">-- Select --</option>
+                    {% for u in units %}
+                    <option value="{{ u.unit_id }}">{{ u.unit_code }} - {{ u.unit_name }} ({{ u.course_name }})</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Academic Year *
+                <input type="text" name="academic_year" value="{{ default_year }}" pattern="\d{4}/\d{4}" required>
+            </label>
+        </div>
+        <button type="submit">Enroll</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Enroll a whole course</h2>
+    <p class="hint">Enrolls every active student of the course in every unit of that course. Students already enrolled are skipped.</p>
+    <form method="POST">
+        <input type="hidden" name="action" value="course">
+        <div class="grid">
+            <label>Course *
+                <select name="course_id" required>
+                    <option value="">-- Select --</option>
+                    {% for c in courses %}
+                    <option value="{{ c.course_id }}">{{ c.course_name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Academic Year *
+                <input type="text" name="academic_year" value="{{ default_year }}" pattern="\d{4}/\d{4}" required>
+            </label>
+        </div>
+        <button type="submit">Enroll Course</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Enrollments for {{ year }} ({{ enrolled|length }})</h2>
+    <form method="GET" class="search">
+        <input type="text" name="year" value="{{ year }}" placeholder="2026/2027">
+        <button type="submit">Show year</button>
+    </form>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Adm No</th><th>Student</th><th>Unit</th><th>Semester</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for e in enrolled %}
+                <tr>
+                    <td>{{ e.admission_no }}</td>
+                    <td>{{ e.student_name }}</td>
+                    <td>{{ e.unit_code }} - {{ e.unit_name }}</td>
+                    <td>{{ e.semester }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('delete_enrollment', enrollment_id=e.enrollment_id) }}"
+                              onsubmit="return confirm('Remove this enrollment and any marks for it?');">
+                            <input type="hidden" name="year" value="{{ year }}">
+                            <button type="submit" class="danger">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="empty">No enrollments for this year yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
